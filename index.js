@@ -50,29 +50,41 @@ app.get("/doctors", async (req, res) => {
   try {
     // allDoctors রেডি কিনা চেক করুন
     if (!allDoctors) {
-      return res.status(503).json({ 
-        success: false, 
-        error: "Database not ready yet" 
+      return res.status(503).json({
+        success: false,
+        error: "Database not ready yet"
       });
     }
+
+    const result = await allDoctors
+      .find()
+      .sort({ rating: -1 }) 
+      .limit(3)
+      .toArray();
+
     
-    const result = await allDoctors.find().limit(3).toArray();
-    
-    // সঠিক ফরম্যাটে রেসপন্স দিন
-    res.json({ 
-      success: true, 
-      data: result 
+    res.json({
+      success: true,
+      data: result
     });
+
   } catch (error) {
     console.error("Error fetching doctors:", error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
+
+    res.status(500).json({
+      success: false,
+      error: error.message
     });
   }
 });
 
-// সার্ভার শুরু করুন
+
+app.get("/all-appointments", async(req, res) =>{
+  const result = await allDoctors.find().toArray();
+  res.json(result);
+})
+
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📍 CORS enabled for all origins`);
